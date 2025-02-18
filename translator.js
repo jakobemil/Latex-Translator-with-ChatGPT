@@ -10,6 +10,24 @@ const openai = new OpenAI({
 const inputPath = "./chapters";
 const outputPath = "./chaptersEnglisch";
 
+/**
+ * Main function to process LaTeX files in the "chapters" directory.
+ * It reads each file, processes its lines, and writes the translated content to new files.
+ *
+ * The function performs the following steps:
+ * 1. Reads all files in the "chapters" directory.
+ * 2. Filters out files that include "00" or do not end with ".tex".
+ * 3. For each file, reads its content line by line.
+ * 4. Processes each line based on specific LaTeX commands and structures.
+ * 5. Writes the processed lines to a new file with "_translated" appended to the original filename.
+ *
+ * The function handles LaTeX environments such as figures, itemize, enumerate, description, tables, tabular, center, equations, align, sections, and skips processing for these environments.
+ *
+ * @async
+ * @function main
+ * @returns {Promise<void>} A promise that resolves when all files have been processed.
+ */
+
 async function main() {
   let files = fs.readdirSync("./chapters");
 
@@ -17,7 +35,7 @@ async function main() {
     (file) => !file.includes("00") || !file.endsWith(".tex")
   );
 
-  files.forEach(async (inputFile) => {
+  for (const inputFile of files) {
     const rl = readline.createInterface({
       input: fs.createReadStream(path.join(inputPath, inputFile)),
       output: process.stdout,
@@ -90,7 +108,7 @@ async function main() {
 
     outputStream.end();
     console.log("Verarbeitung abgeschlossen.");
-  });
+  }
 }
 
 async function processLine(line) {
@@ -127,12 +145,4 @@ async function processLine(line) {
   });
   return response;
 }
-
-async function test() {
-  line =
-    "Seit Manifest Version 3 verwendet Chrome \textit{Service Worker} anstelle von dauerhaften Hintergrundseiten, wodurch Ressourcen effizienter genutzt werden. Zudem müssen Skripte über die \texttt{chrome.scripting}-API in Webseiten eingefügt werden, da direkter Zugriff aus dem Hintergrundskript nicht mehr erlaubt ist. Durch dieses modulare System ermöglichen Chrome Extensions eine nahtlose Integration in den Browser und die Anpassung von Webseiten sowie Benutzerinteraktionen.";
-  const res = await processLine(line);
-  console.log(res.choices[0].message.content);
-}
-//test();
 main();
